@@ -5,7 +5,7 @@ const menuItems = [
   { label: "Dashboard", icon: LayoutDashboard, to: "/" },
   { label: "Pedidos", icon: ScrollText, to: "/orders" },
   { label: "Registros", icon: Menu, to: "/register" },
-  { label: "Gerência", icon: SquarePen, to: "/products" },
+  { label: "Estoque", icon: SquarePen, to: "/stock" },
 ]
 
 export default function Sidebar() {

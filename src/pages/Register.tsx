@@ -1,59 +1,54 @@
 import { useEffect, useState } from "react"
-// import { updateFood } from "./api/edit-food";
 import { useForm } from "react-hook-form"
 import type { SubmitHandler } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Toast } from "./ui/Toast"
 import { foodFormSchema, type FoodFormFields } from "@/model/schemaFood"
-import { ListFilter } from "lucide-react"
+import { ListFilter, X } from "lucide-react"
 
 import data from "@/data.json"
-import type { FoodResponse } from "@/model/foodModel"
+import { categories, types, type FoodResponse } from "@/model/foodModel"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Button } from "@/components/ui/button"
 
 const inputBase = "outline-none rounded-3xl px-4 py-2 transition-colors"
 const inputError = "border-2 border-red-500 bg-red-50"
 const inputNormal = "bg-zinc-200"
 
-const categories = [
-  { value: "pizza", label: "Pizza" },
-  { value: "hamburguer", label: "Hamburguer" },
-  { value: "pastel", label: "Pastel" },
-  { value: "batata", label: "Batata Frita" },
-  { value: "hotDog", label: "Cachorro Quente" },
-  { value: "bread", label: "Pão Árabe" },
-  { value: "Refrigerantes", label: "Refrigerante" },
-  { value: "Sucos", label: "Suco" },
-  { value: "Vitaminas", label: "Vitamina" },
-]
-
-export default function App() {
+export default function Register() {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<FoodFormFields>({
     resolver: zodResolver(foodFormSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      image: "",
+      price: 0,
+      type: undefined,
+    },
   })
 
-  const [products] = useState<FoodResponse[]>(data)
+  const [products, setProducts] = useState<FoodResponse[]>(data)
   const [filter, setFilter] = useState("")
+
+  const [modalDetails, setModalDetails] = useState<boolean>(false)
+  const [productDetails, setProductDetails] = useState<FoodResponse | null>()
+  const [typeValue, setTypeValue] = useState<string>("")
+  const [filterTypeValue, setFilterTypeValue] = useState<string>("")
+
   const [toastSucessfullyEdit, setToastSucessfullyEdit] = useState(false)
   const [toastSucessfullyRegister, setToastSucessfullyRegister] = useState(false)
   const [toastWarningRegister, setToastWarningRegister] = useState(false)
   const [toastDeleteRegister, setToastDeleteRegister] = useState(false)
 
-  const onSubmit: SubmitHandler<FoodFormFields> = async (data) => {
-    // try {
-    //   const response = await foodFetch.post("foods", data)
-
-    //   if (response.status === 200 || response.status === 201) {
-    //     setToastSucessfullyRegister(true)
-    //     reset()
-    //   }
-    // } catch (error) {
-    //   setToastWarningRegister(true)
-    // }
-    console.log(data)
+  const onSubmit: SubmitHandler<FoodFormFields> = async (formData) => {
+    console.log(formData)
+    setToastSucessfullyRegister(true)
+    reset()
   }
 
   useEffect(() => {
@@ -74,13 +69,84 @@ export default function App() {
     }
   }, [toastSucessfullyEdit, toastSucessfullyRegister, toastWarningRegister, toastDeleteRegister])
 
+  function filterPopover(type: string) {
+    setProducts(data.filter((item) => item.type === type))
+  }
+
   return (
-    <main className="w-full h-full flex gap-5">
+    <main className="w-full h-full flex gap-5 relative">
       {toastSucessfullyRegister && <Toast text="Cadastro feito com sucesso!" />}
       {toastWarningRegister && <Toast text="Preencha o formulário corretamente!" color="yellow" />}
       {toastDeleteRegister && <Toast text="Cadastro deletado com sucesso!" color="red" />}
+      {modalDetails && (
+        <div className="absolute w-160 h-100 bg-white rounded-md mt-40 ml-50 px-2 py-2">
+          <div className="w-full flex justify-end">
+            <X
+              className="cursor-pointer hover:text-zinc-600"
+              onClick={() => setModalDetails(false)}
+            />
+          </div>
+          <div className="w-full flex gap-2 px-2 py-2">
+            <img
+              src={productDetails?.image}
+              alt={productDetails?.title}
+              className="w-70 h-70 rounded"
+            />
+            <div className="w-full flex flex-col gap-2">
+              <label className="text-[10px]">Título</label>
+              <input
+                type="text"
+                value={productDetails?.title}
+                className="border rounded-3xl  gap-2 text-amber-950 px-3 py-2"
+              />
+              <label className="text-[10px]">Descrição</label>
+              <input
+                type="text"
+                value={productDetails?.description}
+                className="border rounded-3xl  gap-2 text-amber-950 px-3 py-2"
+              />
+              <label className="text-[10px]">Preço</label>
+              <input
+                type="text"
+                value={productDetails?.price}
+                className="border rounded-3xl  gap-2 text-amber-950 px-3 py-2"
+              />
+              <label className="text-[10px]">Tipo</label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="w-50 justify-between">
+                    {typeValue || "Selecione uma opção"}
+                  </Button>
+                </PopoverTrigger>
+
+                <PopoverContent className="w-50 p-2">
+                  <ul className="flex flex-col gap-1">
+                    {types.map((option) => (
+                      <li
+                        key={option}
+                        onClick={() => setTypeValue(option)}
+                        className="cursor-pointer rounded px-2 py-1 hover:bg-zinc-100"
+                      >
+                        {option}
+                      </li>
+                    ))}
+                  </ul>
+                </PopoverContent>
+              </Popover>
+            </div>
+          </div>
+          <div className="w-full flex items-center justify-end gap-3 mt-5 px-6">
+            <button className="px-2 py-2 bg-zinc-600 rounded text-white text-xs cursor-pointer hover:bg-zinc-400">
+              Confirmar edição
+            </button>
+            <button className="px-2 py-2 bg-red-600 rounded text-white text-xs cursor-pointer hover:bg-red-400">
+              Deletar do cardápio
+            </button>
+          </div>
+        </div>
+      )}
       <form
-        className="w-[40%] min-h-fit bg-amber-200 rounded-lg flex flex-col items-center gap-6 px-5 py-10"
+        className="w-[40%] h-[70vh] bg-amber-200 rounded-lg flex flex-col items-center gap-3 px-5 py-10"
         onSubmit={handleSubmit(onSubmit)}
       >
         <div className="w-full flex flex-col gap-1">
@@ -144,9 +210,7 @@ export default function App() {
               </label>
             ))}
           </div>
-          {errors.type && <span className="text-sm text-red-600 mt-1">{errors.type.message}</span>}
         </div>
-
         <div className="w-full mt-4">
           <button
             type="submit"
@@ -157,14 +221,48 @@ export default function App() {
         </div>
       </form>
       <div className="w-full flex flex-col gap-4">
-        <div className="w-[30%] flex items-center justify-between border rounded-3xl bg-zinc-200 gap-2 text-amber-950 px-3 py-2">
-          <ListFilter />
-          <input
-            placeholder="Filtrar"
-            className="outline-none bg-transparent w-full"
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-          />
+        <div className="w-full flex gap-4">
+          <div className="w-[30%] flex items-center justify-between border rounded-3xl bg-zinc-200 gap-2 text-amber-950 px-3 py-2">
+            <ListFilter />
+            <input
+              placeholder="Filtrar"
+              className="outline-none bg-transparent w-full"
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+            />
+          </div>
+          <div className="flex gap-2 items-center">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="w-50 justify-between">
+                  {filterTypeValue || "Filtrar pelo tipo"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-50 p-2">
+                <ul className="flex flex-col gap-1">
+                  {types.map((option) => (
+                    <li
+                      key={option}
+                      onClick={() => {
+                        filterPopover(option)
+                        setFilterTypeValue(option)
+                      }}
+                      className="cursor-pointer rounded px-2 py-1 hover:bg-zinc-100"
+                    >
+                      {option}
+                    </li>
+                  ))}
+                </ul>
+              </PopoverContent>
+            </Popover>
+            <X
+              className="size-4"
+              onClick={() => {
+                setProducts(data)
+                setFilterTypeValue("Filtrar pelo tipo")
+              }}
+            />
+          </div>
         </div>
         <div className="flex flex-col gap-2 max-h-170 overflow-y-auto pr-2">
           {products
@@ -178,6 +276,11 @@ export default function App() {
               <div
                 key={item.id}
                 className="flex items-center gap-4 bg-orange-400 px-4 py-3 rounded-xl"
+                onClick={() => {
+                  setModalDetails(true)
+                  setProductDetails(item)
+                  setTypeValue(item.title)
+                }}
               >
                 <img
                   src={item.image}

@@ -1,9 +1,9 @@
 import Dashboard from "@/pages/Dashboard"
 import HomeLayout from "@/pages/HomeLayout"
-import Products from "@/pages/Products"
 import Orders from "@/pages/Orders"
 import { createBrowserRouter } from "react-router"
 import Register from "@/pages/Register"
+import Stock from "@/pages/Stock"
 
 export const router = createBrowserRouter([
   {
@@ -11,7 +11,7 @@ export const router = createBrowserRouter([
     children: [
       { path: "/", element: <Dashboard /> },
       { path: "/register", element: <Register /> },
-      { path: "/products", element: <Products /> },
+      { path: "/stock", element: <Stock /> },
       { path: "/orders", element: <Orders /> },
     ],
   },
