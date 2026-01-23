@@ -10,7 +10,7 @@ const menuItems = [
 
 export default function Sidebar() {
   return (
-    <nav className="w-50 h-full flex flex-col py-10 gap-10 bg-amber-950 rounded-2xl">
+    <nav className="w-70 h-full flex flex-col py-10 gap-10 bg-amber-950 rounded-2xl px-2">
       <h2 className="text-white px-4 text-3xl">NFL's Menu</h2>
 
       <ul className="w-full flex flex-col gap-2 h-screen items-center px-3">

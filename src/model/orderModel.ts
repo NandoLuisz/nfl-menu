@@ -2,7 +2,7 @@ export type Order = {
   id: string
   date: string
   items: number
-  status: "pending" | "processing" | "success" | "failed"
+  status: "pendente" | "entregue" | "cancelado"
   price: number
   address: string
 }
@@ -13,7 +13,7 @@ export const orders: Order[] = [
     date: "17 Jan, 2025",
     items: 316,
     price: 25.5,
-    status: "success",
+    status: "entregue",
     address: "13 de Maio, 5483",
   },
   {
@@ -21,7 +21,7 @@ export const orders: Order[] = [
     date: "17 Jan, 2025",
     items: 242,
     price: 25.5,
-    status: "success",
+    status: "entregue",
     address: "13 de Maio, 5483",
   },
   {
@@ -29,7 +29,7 @@ export const orders: Order[] = [
     date: "17 Jan, 2025",
     items: 837,
     price: 25.5,
-    status: "processing",
+    status: "pendente",
     address: "13 de Maio, 5483",
   },
   {
@@ -37,7 +37,7 @@ export const orders: Order[] = [
     date: "17 Jan, 2025",
     items: 874,
     price: 25.5,
-    status: "success",
+    status: "entregue",
     address: "13 de Maio, 5483",
   },
   {
@@ -45,7 +45,7 @@ export const orders: Order[] = [
     date: "17 Jan, 2025",
     items: 721,
     price: 25.5,
-    status: "failed",
+    status: "cancelado",
     address: "13 de Maio, 5483",
   },
 ]

@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button"
 
 const inputBase = "outline-none rounded-3xl px-4 py-2 transition-colors"
 const inputError = "border-2 border-red-500 bg-red-50"
-const inputNormal = "bg-zinc-200"
+const inputNormal = "bg-white"
 
 export default function Register() {
   const {
@@ -115,7 +115,7 @@ export default function Register() {
               <Popover>
                 <PopoverTrigger asChild>
                   <Button variant="outline" className="w-50 justify-between">
-                    {typeValue || "Selecione uma opção"}
+                    {productDetails?.type || "Selecione uma opção"}
                   </Button>
                 </PopoverTrigger>
 

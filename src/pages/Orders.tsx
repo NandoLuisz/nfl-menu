@@ -1,4 +1,6 @@
 import * as React from "react"
+import { useState } from "react"
+
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -19,6 +21,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+
 import {
   flexRender,
   getCoreRowModel,
@@ -31,61 +35,17 @@ import {
   type SortingState,
   type VisibilityState,
 } from "@tanstack/react-table"
+
 import { ChevronDown, MoreHorizontal, ArrowUpDown } from "lucide-react"
 
-type Order = {
-  id: string
-  date: string
-  items: number
-  status: "pendente" | "entregue" | "cancelado"
-  price: number
-  address: string
-}
+import { orders, type Order } from "@/model/orderModel"
 
-const orders: Order[] = [
-  {
-    id: "m5gr84i9",
-    date: "17 Jan, 2025",
-    items: 316,
-    price: 25.5,
-    status: "entregue",
-    address: "13 de Maio, 5483",
-  },
-  {
-    id: "3u1reuv4",
-    date: "17 Jan, 2025",
-    items: 242,
-    price: 25.5,
-    status: "entregue",
-    address: "13 de Maio, 5483",
-  },
-  {
-    id: "derv1ws0",
-    date: "17 Jan, 2025",
-    items: 837,
-    price: 25.5,
-    status: "pendente",
-    address: "13 de Maio, 5483",
-  },
-  {
-    id: "5kma53ae",
-    date: "17 Jan, 2025",
-    items: 874,
-    price: 25.5,
-    status: "entregue",
-    address: "13 de Maio, 5483",
-  },
-  {
-    id: "bhqecj4p",
-    date: "17 Jan, 2025",
-    items: 721,
-    price: 25.5,
-    status: "cancelado",
-    address: "13 de Maio, 5483",
-  },
-]
+/* =========================
+   COLUMNS
+========================= */
 
-export const columns: ColumnDef<Order>[] = [
+// eslint-disable-next-line react-refresh/only-export-components
+export const columns = (onOpenDetails: (order: Order) => void): ColumnDef<Order>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -94,14 +54,14 @@ export const columns: ColumnDef<Order>[] = [
           table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")
         }
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
+        aria-label="Selecionar todos"
       />
     ),
     cell: ({ row }) => (
       <Checkbox
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
+        aria-label="Selecionar linha"
       />
     ),
     enableSorting: false,
@@ -114,32 +74,34 @@ export const columns: ColumnDef<Order>[] = [
   },
   {
     accessorKey: "date",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Data
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      )
-    },
+    header: ({ column }) => (
+      <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+        Data
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
     cell: ({ row }) => <div>{row.getValue("date")}</div>,
   },
   {
     accessorKey: "address",
     header: "Endereço",
-    cell: ({ row }) => <div className="max-w-50 truncate">{row.getValue("address")}</div>,
+    cell: ({ row }) => <div className="max-w-52 truncate">{row.getValue("address")}</div>,
   },
   {
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => {
       const status = row.getValue("status") as string
+
       return (
         <div
-          className={`capitalize font-medium ${status === "cancelado" ? "text-red-500" : status === "entregue" ? "text-green-600" : "text-amber-500"}`}
+          className={`capitalize font-medium ${
+            status === "cancelado"
+              ? "text-red-500"
+              : status === "entregue"
+                ? "text-green-600"
+                : "text-amber-500"
+          }`}
         >
           {status}
         </div>
@@ -155,34 +117,40 @@ export const columns: ColumnDef<Order>[] = [
     accessorKey: "price",
     header: () => <div className="text-right">Preço</div>,
     cell: ({ row }) => {
-      const price = parseFloat(row.getValue("price"))
-      const formatted = new Intl.NumberFormat("pt-BR", {
-        style: "currency",
-        currency: "BRL",
-      }).format(price)
-      return <div className="text-right font-medium">{formatted}</div>
+      const price = Number(row.getValue("price"))
+
+      return (
+        <div className="text-right font-medium">
+          {new Intl.NumberFormat("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }).format(price)}
+        </div>
+      )
     },
   },
   {
     id: "actions",
     cell: ({ row }) => {
       const order = row.original
+
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Abrir menu</span>
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
+
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Ações</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(order.id)}>
-              Copiar ID do pedido
-            </DropdownMenuItem>
+
             <DropdownMenuGroup>
-              <DropdownMenuItem>Ver cliente</DropdownMenuItem>
-              <DropdownMenuItem>Ver detalhes</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigator.clipboard.writeText(order.id)}>
+                Copiar ID
+              </DropdownMenuItem>
+
+              <DropdownMenuItem onClick={() => onOpenDetails(order)}>Ver detalhes</DropdownMenuItem>
             </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -191,15 +159,27 @@ export const columns: ColumnDef<Order>[] = [
   },
 ]
 
+/* =========================
+   COMPONENT
+========================= */
+
 export default function Orders() {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
 
+  const [modalDetailsOrderActive, setModalDetailsOrderActive] = useState(false)
+  const [modalDetailsOrder, setModalDetailsOrder] = useState<Order | null>(null)
+
+  const handleOpenDetails = (order: Order) => {
+    setModalDetailsOrder(order)
+    setModalDetailsOrderActive(true)
+  }
+
   const table = useReactTable({
-    data: orders, // Changed from 'orders' to 'data'
-    columns,
+    data: orders,
+    columns: columns(handleOpenDetails),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -218,6 +198,43 @@ export default function Orders() {
 
   return (
     <div className="w-full">
+      {/* ===== Dialog ===== */}
+      <Dialog open={modalDetailsOrderActive} onOpenChange={setModalDetailsOrderActive}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Detalhes do pedido</DialogTitle>
+          </DialogHeader>
+
+          {modalDetailsOrder && (
+            <div className="space-y-3 text-sm">
+              <p>
+                <strong>ID:</strong> {modalDetailsOrder.id}
+              </p>
+              <p>
+                <strong>Data:</strong> {modalDetailsOrder.date}
+              </p>
+              <p>
+                <strong>Endereço:</strong> {modalDetailsOrder.address}
+              </p>
+              <p>
+                <strong>Status:</strong> {modalDetailsOrder.status}
+              </p>
+              <p>
+                <strong>Itens:</strong> {modalDetailsOrder.items}
+              </p>
+              <p>
+                <strong>Preço:</strong>{" "}
+                {new Intl.NumberFormat("pt-BR", {
+                  style: "currency",
+                  currency: "BRL",
+                }).format(Number(modalDetailsOrder.price))}
+              </p>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* ===== Filters ===== */}
       <div className="flex items-center py-4 gap-4">
         <Input
           placeholder="Filtrar por endereço..."
@@ -225,12 +242,14 @@ export default function Orders() {
           onChange={(event) => table.getColumn("address")?.setFilterValue(event.target.value)}
           className="max-w-sm"
         />
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
               Colunas <ChevronDown className="ml-2 h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
+
           <DropdownMenuContent align="end">
             {table
               .getAllColumns()
@@ -248,6 +267,8 @@ export default function Orders() {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      {/* ===== Table ===== */}
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -263,8 +284,9 @@ export default function Orders() {
               </TableRow>
             ))}
           </TableHeader>
+
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
                   {row.getVisibleCells().map((cell) => (
@@ -276,7 +298,7 @@ export default function Orders() {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell colSpan={columns(handleOpenDetails).length} className="h-24 text-center">
                   Sem resultados.
                 </TableCell>
               </TableRow>
@@ -284,29 +306,31 @@ export default function Orders() {
           </TableBody>
         </Table>
       </div>
+
+      {/* ===== Pagination ===== */}
       <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="text-muted-foreground flex-1 text-sm">
+        <div className="flex-1 text-sm text-muted-foreground">
           {table.getFilteredSelectedRowModel().rows.length} de{" "}
           {table.getFilteredRowModel().rows.length} linha(s) selecionadas.
         </div>
-        <div className="space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Anterior
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Próximo
-          </Button>
-        </div>
+
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => table.previousPage()}
+          disabled={!table.getCanPreviousPage()}
+        >
+          Anterior
+        </Button>
+
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => table.nextPage()}
+          disabled={!table.getCanNextPage()}
+        >
+          Próximo
+        </Button>
       </div>
     </div>
   )
