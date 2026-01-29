@@ -1,19 +1,48 @@
 import { Button } from "@/components/ui/button"
 
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Skeleton } from "@/components/ui/skeleton"
 import { categoriesStock } from "@/model/categoriesStock"
 import { stockSchema, type StockFormData } from "@/model/schemaStock"
 
 import { statusStyles, stockItems, type Stock } from "@/model/stockModel"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { X } from "lucide-react"
+import { ChevronLeft, ChevronRight, ListFilter, X } from "lucide-react"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 
 const units = ["un", "kg", "g", "l", "ml"]
 
 const statuses: Stock["status"][] = ["ok", "baixo", "esgotado"]
+
+const ITEMS_PER_PAGE = 5
+
+function StockTableSkeleton() {
+  return (
+    <>
+      {Array.from({ length: 5 }).map((_, i) => (
+        <tr key={i} className="border-b">
+          <td className="px-4 py-3">
+            <Skeleton className="h-4 w-32 bg-zinc-200" />
+          </td>
+          <td className="px-4 py-3">
+            <Skeleton className="h-4 w-12 mx-auto bg-zinc-200" />
+          </td>
+          <td className="px-4 py-3">
+            <Skeleton className="h-4 w-8 mx-auto bg-zinc-200" />
+          </td>
+          <td className="px-4 py-3">
+            <Skeleton className="h-4 w-12 mx-auto bg-zinc-200" />
+          </td>
+          <td className="px-4 py-3 flex justify-center">
+            <Skeleton className="h-6 w-20 rounded-full bg-zinc-200" />
+          </td>
+        </tr>
+      ))}
+    </>
+  )
+}
 
 export default function Stock() {
   function onSubmit(data: StockFormData) {
@@ -35,13 +64,41 @@ export default function Stock() {
   } = useForm<StockFormData>({
     resolver: zodResolver(stockSchema),
   })
-  const [stockProducts, setStockProducts] = useState<Stock[]>(stockItems)
   const [modalDetailsStockProduct, setModalDetailsStockProduct] = useState<boolean>(false)
   const [stockProductDetails, setStockProductDetails] = useState<Stock | null>(null)
+  const [stockProducts, setStockProducts] = useState<Stock[]>(stockItems)
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const [filterText, setFilterText] = useState("")
+  const [currentPage, setCurrentPage] = useState(1)
 
-  function filter(type: string) {
-    setStockProducts(stockItems.filter((product) => product.type === type))
-  }
+  const [isLoading, setIsLoading] = useState(true)
+
+  const filteredStock = stockProducts.filter((item) => {
+    const matchesText =
+      item.name.toLowerCase().includes(filterText.toLowerCase()) ||
+      item.status.toLowerCase().includes(filterText.toLowerCase())
+
+    const matchesCategory = selectedCategory ? item.type === selectedCategory : true
+
+    return matchesText && matchesCategory
+  })
+
+  const totalPages = Math.ceil(filteredStock.length / ITEMS_PER_PAGE)
+
+  const paginatedStock = filteredStock.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE,
+  )
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setCurrentPage(1)
+  }, [filterText, selectedCategory])
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 1500)
+    return () => clearTimeout(timer)
+  }, [])
 
   return (
     <div className="w-full h-full flex flex-col">
@@ -179,14 +236,30 @@ export default function Stock() {
         {categoriesStock.map((category) => (
           <div
             key={category.value}
-            className={`bg-zinc-200 w-50 h-30 rounded flex flex-col items-center justify-center gap-2 cursor-pointer ${category.textColorHover}`}
-            onClick={() => filter(category.value)}
+            className={`
+            bg-zinc-200 w-50 h-30 rounded flex flex-col items-center justify-center gap-2 cursor-pointer
+            ${category.textColorHover}
+            ${selectedCategory === category.value ? "ring-2 ring-zinc-800" : ""}
+            `}
+            onClick={() =>
+              setSelectedCategory((prev) => (prev === category.value ? null : category.value))
+            }
           >
             <span>{category.icon}</span>
 
-            <span>{category.value}</span>
+            <span>{category.name}</span>
           </div>
         ))}
+      </div>
+
+      <div className="w-[30%] flex items-center justify-between border rounded-3xl bg-zinc-200 gap-2 text-zinc-800 px-3 py-2 mt-6">
+        <ListFilter />
+        <input
+          placeholder="Filtrar por nome, status ou tipo..."
+          className="outline-none bg-transparent w-full"
+          value={filterText}
+          onChange={(e) => setFilterText(e.target.value)}
+        />
       </div>
 
       <div className="mt-4">
@@ -207,43 +280,66 @@ export default function Stock() {
             </thead>
 
             <tbody>
-              {stockProducts.map((item) => (
-                <tr
-                  key={item.id}
-                  className="border-b last:border-none hover:bg-zinc-100 transition"
-                  onClick={() => {
-                    setModalDetailsStockProduct(true)
-                    setStockProductDetails(item)
-                    reset({
-                      name: item.name,
-                      quantity: item.quantity,
-                      minQuantity: item.minQuantity,
-                      unit: item.unit as "un" | "kg" | "g" | "l" | "ml",
-                      status: item.status,
-                      type: item.type,
-                      image: item.image,
-                    })
-                  }}
-                >
-                  <td className="px-4 py-3 font-medium text-zinc-800">{item.name}</td>
-
-                  <td className="px-4 py-3 text-center">{item.quantity}</td>
-
-                  <td className="px-4 py-3 text-center">{item.unit}</td>
-
-                  <td className="px-4 py-3 text-center">{item.minQuantity}</td>
-
-                  <td className="px-4 py-3 text-center">
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-semibold ${statusStyles[item.status]}`}
-                    >
-                      {item.status}
-                    </span>
+              {isLoading ? (
+                <StockTableSkeleton />
+              ) : paginatedStock.length > 0 ? (
+                paginatedStock.map((item) => (
+                  <tr
+                    key={item.id}
+                    className="border-b last:border-none hover:bg-zinc-100 transition cursor-pointer"
+                    onClick={() => {
+                      setModalDetailsStockProduct(true)
+                      setStockProductDetails(item)
+                      reset({ ...item }) // Simplificado o reset
+                    }}
+                  >
+                    <td className="px-4 py-3 font-medium text-zinc-800">{item.name}</td>
+                    <td className="px-4 py-3 text-center">{item.quantity}</td>
+                    <td className="px-4 py-3 text-center">{item.unit}</td>
+                    <td className="px-4 py-3 text-center">{item.minQuantity}</td>
+                    <td className="px-4 py-3 text-center">
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-semibold ${statusStyles[item.status]}`}
+                      >
+                        {item.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={5} className="py-10 text-center text-zinc-500">
+                    Nenhum item encontrado no estoque.
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
+        </div>
+      </div>
+      <div className="flex items-center justify-between pt-4">
+        <span className="text-sm text-muted-foreground">
+          Página {currentPage} de {totalPages || 1}
+        </span>
+
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage((prev) => prev - 1)}
+          >
+            <ChevronLeft />
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={currentPage === totalPages || totalPages === 0}
+            onClick={() => setCurrentPage((prev) => prev + 1)}
+          >
+            <ChevronRight />
+          </Button>
         </div>
       </div>
     </div>

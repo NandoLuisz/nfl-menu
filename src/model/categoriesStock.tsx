@@ -14,27 +14,62 @@ import {
 } from "lucide-react"
 
 export const categoriesStock = [
-  { value: "Carnes", icon: <Beef />, textColorHover: "hover:text-red-800" },
+  { name: "Carnes", value: "meat", icon: <Beef />, textColorHover: "hover:text-red-800" },
 
-  { value: "Pães", icon: <Wheat />, textColorHover: "hover:text-amber-700" },
+  { name: "Pães", value: "bread", icon: <Wheat />, textColorHover: "hover:text-amber-700" },
 
-  { value: "Laticínios", icon: <Milk />, textColorHover: "hover:text-white" },
+  { name: "Laticínios", value: "dairy", icon: <Milk />, textColorHover: "hover:text-white" },
 
-  { value: "Vegetais", icon: <LeafyGreen />, textColorHover: "hover:text-green-700" },
+  {
+    name: "Vegetais",
+    value: "vegetable",
+    icon: <LeafyGreen />,
+    textColorHover: "hover:text-green-700",
+  },
 
-  { value: "Frutas", icon: <Banana />, textColorHover: "hover:text-yellow-500" },
+  { name: "Frutas", value: "fruit", icon: <Banana />, textColorHover: "hover:text-yellow-500" },
 
-  { value: "Molhos e Condimentos", icon: <Droplets />, textColorHover: "hover:text-red-300" },
+  {
+    name: "Molhos e Condimentos",
+    value: "sauces and condiments",
+    icon: <Droplets />,
+    textColorHover: "hover:text-red-300",
+  },
 
-  { value: "Bebidas", icon: <CupSoda />, textColorHover: "hover:text-blue-800" },
+  { name: "Bebidas", value: "drink", icon: <CupSoda />, textColorHover: "hover:text-blue-800" },
 
-  { value: "Café e Sobremesas", icon: <Coffee />, textColorHover: "hover:text-yellow-900" },
+  {
+    name: "Café e Sobremesas",
+    value: "sweet",
+    icon: <Coffee />,
+    textColorHover: "hover:text-yellow-900",
+  },
 
-  { value: "Congelados", icon: <IceCream />, textColorHover: "hover:text-lime-600" },
+  {
+    name: "Congelados",
+    value: "frozen",
+    icon: <IceCream />,
+    textColorHover: "hover:text-lime-600",
+  },
 
-  { value: "Embalagens", icon: <Package />, textColorHover: "hover:text-red-900" },
+  {
+    name: "Embalagens",
+    value: "packaging",
+    icon: <Package />,
+    textColorHover: "hover:text-red-900",
+  },
 
-  { value: "Óleos e Fritura", icon: <Flame />, textColorHover: "hover:text-orange-400" },
+  {
+    name: "Óleos e Fritura",
+    value: "frying",
+    icon: <Flame />,
+    textColorHover: "hover:text-orange-400",
+  },
 
-  { value: "Limpeza", icon: <SprayCan />, textColorHover: "hover:text-purple-400" },
+  {
+    name: "Limpeza",
+    value: "cleaning",
+    icon: <SprayCan />,
+    textColorHover: "hover:text-purple-400",
+  },
 ]

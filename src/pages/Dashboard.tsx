@@ -37,6 +37,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { useEffect, useState } from "react"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export const description = "A line chart"
 
@@ -84,6 +86,12 @@ const menuItems = [
 ]
 
 export default function Dashboard() {
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    setTimeout(() => setLoading(false), 1500)
+  }, [])
+
   return (
     <div className="w-full h-full">
       <div className="w-48 gap-3 rounded-xl bg-white px-3 py-3 flex items-center">
@@ -92,83 +100,103 @@ export default function Dashboard() {
         <ChevronDown className="size-4" />
       </div>
       <div className="py-4 flex gap-4">
-        <div className="w-68 bg-white px-5 py-5 rounded-4xl">
-          <div className="flex w-full items-center justify-between">
-            <span>Entrega mensal</span>
-            <Package className="size-8 text-emerald-700" />
+        {!loading ? (
+          <div className="w-68 bg-white px-5 py-5 rounded-4xl">
+            <div className="flex w-full items-center justify-between">
+              <span>Entrega mensal</span>
+              <Package className="size-8 text-emerald-700" />
+            </div>
+            <span className="font-semibold text-3xl">857 pedidos</span>
+            <div className="flex items-center gap-2">
+              <TrendingDown className="text-red-600" />
+              <span className="text-zinc-400 text-xs">*10% vs mês passado</span>
+            </div>
           </div>
-          <span className="font-semibold text-3xl">857 pedidos</span>
-          <div className="flex items-center gap-2">
-            <TrendingDown className="text-red-600" />
-            <span className="text-zinc-400 text-xs">*10% vs mês passado</span>
+        ) : (
+          <Skeleton className="h-30 w-67.5 bg-zinc-200 rounded-4xl" />
+        )}
+        {!loading ? (
+          <div className="w-68 bg-white px-5 py-5 rounded-4xl">
+            <div className="flex w-full items-center justify-between">
+              <span>Hora trabalhada mensal</span>
+              <ClipboardClock className="size-8 text-yellow-400" />
+            </div>
+            <span className="font-semibold text-3xl">158 horas</span>
+            <div className="flex items-center gap-2">
+              <TrendingUp className="text-green-600" />
+              <span className="text-zinc-400 text-xs">*20% vs mês passado</span>
+            </div>
           </div>
-        </div>
-        <div className="w-68 bg-white px-5 py-5 rounded-4xl">
-          <div className="flex w-full items-center justify-between">
-            <span>Hora trabalhada mensal</span>
-            <ClipboardClock className="size-8 text-yellow-400" />
+        ) : (
+          <Skeleton className="h-30 w-67.5 bg-zinc-200 rounded-4xl" />
+        )}
+        {!loading ? (
+          <div className="w-68 bg-white px-5 py-5 rounded-4xl">
+            <div className="flex w-full items-center justify-between">
+              <span>Fundos ganhos</span>
+              <WalletCards className="size-8 text-lime-700" />
+            </div>
+            <span className="font-semibold text-3xl">R$ 1,5k</span>
+            <div className="flex items-center gap-2">
+              <TrendingUp className="text-green-600" />
+              <span className="text-zinc-400 text-xs">*5% vs mês passado</span>
+            </div>
           </div>
-          <span className="font-semibold text-3xl">158 horas</span>
-          <div className="flex items-center gap-2">
-            <TrendingUp className="text-green-600" />
-            <span className="text-zinc-400 text-xs">*20% vs mês passado</span>
+        ) : (
+          <Skeleton className="h-30 w-67.5 bg-zinc-200 rounded-4xl" />
+        )}
+        {!loading ? (
+          <div className="w-68 bg-white px-5 py-5 rounded-4xl">
+            <div className="flex w-full items-center justify-between">
+              <span>Pedidos cancelados</span>
+              <CircleX className="size-8 text-red-700" />
+            </div>
+            <span className="font-semibold text-3xl">34 cancelados</span>
+            <div className="flex items-center gap-2">
+              <TrendingDown className="text-green-600" />
+              <span className="text-zinc-400 text-xs">*5% vs mês passado</span>
+            </div>
           </div>
-        </div>
-        <div className="w-68 bg-white px-5 py-5 rounded-4xl">
-          <div className="flex w-full items-center justify-between">
-            <span>Fundos ganhos</span>
-            <WalletCards className="size-8 text-lime-700" />
-          </div>
-          <span className="font-semibold text-3xl">R$ 1,5k</span>
-          <div className="flex items-center gap-2">
-            <TrendingUp className="text-green-600" />
-            <span className="text-zinc-400 text-xs">*5% vs mês passado</span>
-          </div>
-        </div>
-        <div className="w-68 bg-white px-5 py-5 rounded-4xl">
-          <div className="flex w-full items-center justify-between">
-            <span>Pedidos cancelados</span>
-            <CircleX className="size-8 text-red-700" />
-          </div>
-          <span className="font-semibold text-3xl">34 cancelados</span>
-          <div className="flex items-center gap-2">
-            <TrendingDown className="text-green-600" />
-            <span className="text-zinc-400 text-xs">*5% vs mês passado</span>
-          </div>
-        </div>
+        ) : (
+          <Skeleton className="h-30 w-67.5 bg-zinc-200 rounded-4xl" />
+        )}
       </div>
       <div className="w-full flex gap-3">
         <div>
-          <Card className="w-140 h-75">
-            <CardHeader className="pb-2">
-              <CardTitle>Pedidos mensais</CardTitle>
-              <CardDescription>Últimos 6 meses</CardDescription>
-            </CardHeader>
+          {loading ? (
+            <Skeleton className="h-full w-full bg-zinc-200 rounded-4xl" />
+          ) : (
+            <Card className="w-140 h-75">
+              <CardHeader className="pb-2">
+                <CardTitle>Pedidos mensais</CardTitle>
+                <CardDescription>Últimos 6 meses</CardDescription>
+              </CardHeader>
 
-            <CardContent className="h-42.5">
-              <ChartContainer config={chartConfig} className="w-full h-full">
-                <LineChart data={chartData} margin={{ left: 12, right: 12 }}>
-                  <CartesianGrid vertical={false} />
-                  <XAxis dataKey="period" tickLine={false} axisLine={false} tickMargin={6} />
-                  <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
-                  <Line
-                    dataKey="pedidos"
-                    type="natural"
-                    stroke="var(--color-pedidos)"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                </LineChart>
-              </ChartContainer>
-            </CardContent>
+              <CardContent className="h-42.5">
+                <ChartContainer config={chartConfig} className="w-full h-full">
+                  <LineChart data={chartData} margin={{ left: 12, right: 12 }}>
+                    <CartesianGrid vertical={false} />
+                    <XAxis dataKey="period" tickLine={false} axisLine={false} tickMargin={6} />
+                    <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+                    <Line
+                      dataKey="pedidos"
+                      type="natural"
+                      stroke="var(--color-pedidos)"
+                      strokeWidth={2}
+                      dot={false}
+                    />
+                  </LineChart>
+                </ChartContainer>
+              </CardContent>
 
-            <CardFooter className="w-full mt-2 flex items-start justify-center gap-1 text-xs">
-              <div className="flex gap-2 font-medium text-green-600">
-                Crescimento de 5.2% este mês <TrendingUp className="h-4 w-4" />
-              </div>
-              <div className="text-muted-foreground">Maior volume no período de jantar</div>
-            </CardFooter>
-          </Card>
+              <CardFooter className="w-full mt-2 flex items-start justify-center gap-1 text-xs">
+                <div className="flex gap-2 font-medium text-green-600">
+                  Crescimento de 5.2% este mês <TrendingUp className="h-4 w-4" />
+                </div>
+                <div className="text-muted-foreground">Maior volume no período de jantar</div>
+              </CardFooter>
+            </Card>
+          )}
           <div className="mt-6">
             <div className="flex gap-2 mb-2">
               <MessageSquareQuote />
@@ -176,73 +204,90 @@ export default function Dashboard() {
             </div>
 
             <div className="flex gap-2">
-              <div className="w-45.5 flex flex-col bg-orange-400 px-2 py-2 rounded-xl gap-1">
-                <span className="font-semibold">Adorei, o hambuguer estava delicioso</span>
-                <span className="text-xs">
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Cumque ut reiciendis
-                </span>
-                <div className="flex">
-                  <Star className="text-yellow-300" />
-                  <Star className="text-yellow-300" />
-                  <Star className="text-yellow-300" />
-                  <Star className="text-yellow-300" />
-                  <Star className="text-yellow-300" />
+              {loading ? (
+                <Skeleton className="w-45.5 h-45.5 bg-zinc-200 rounded-4xl" />
+              ) : (
+                <div className="w-45.5 flex flex-col bg-orange-400 px-2 py-2 rounded-xl gap-1">
+                  <span className="font-semibold">Adorei, o hambuguer estava delicioso</span>
+                  <span className="text-xs">
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Cumque ut reiciendis
+                  </span>
+                  <div className="flex">
+                    <Star className="text-yellow-300" />
+                    <Star className="text-yellow-300" />
+                    <Star className="text-yellow-300" />
+                    <Star className="text-yellow-300" />
+                    <Star className="text-yellow-300" />
+                  </div>
+                  <div className="flex gap-2 text-xs items-center text-zinc-700">
+                    <img
+                      src="https://github.com/NandoLuisz.png"
+                      alt="Foto de perfil do GitHub"
+                      className="w-8 h-8 rounded-full"
+                    />
+                    <span>Nando S.</span>
+                  </div>
                 </div>
-                <div className="flex gap-2 text-xs items-center text-zinc-700">
-                  <img
-                    src="https://github.com/NandoLuisz.png"
-                    alt="Foto de perfil do GitHub"
-                    className="w-8 h-8 rounded-full"
-                  />
-                  <span>Nando S.</span>
+              )}
+              {loading ? (
+                <Skeleton className="w-45.5 h-45.5 bg-zinc-200 rounded-4xl" />
+              ) : (
+                <div className="w-45.5 flex flex-col bg-orange-400 px-2 py-2 rounded-xl gap-1">
+                  <span className="font-semibold">Adorei, o hambuguer estava delicioso</span>
+                  <span className="text-xs">
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Cumque ut reiciendis
+                  </span>
+                  <div className="flex">
+                    <Star className="text-yellow-300" />
+                    <Star className="text-yellow-300" />
+                    <Star className="text-yellow-300" />
+                    <Star className="text-yellow-300" />
+                    <Star className="text-yellow-300" />
+                  </div>
+                  <div className="flex gap-2 text-xs items-center text-zinc-700">
+                    <img
+                      src="https://github.com/NandoLuisz.png"
+                      alt="Foto de perfil do GitHub"
+                      className="w-8 h-8 rounded-full"
+                    />
+                    <span>Nando S.</span>
+                  </div>
                 </div>
-              </div>
-              <div className="w-45.5 flex flex-col bg-orange-400 px-2 py-2 rounded-xl gap-1">
-                <span className="font-semibold">Adorei, o hambuguer estava delicioso</span>
-                <span className="text-xs">
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Cumque ut reiciendis
-                </span>
-                <div className="flex">
-                  <Star className="text-yellow-300" />
-                  <Star className="text-yellow-300" />
-                  <Star className="text-yellow-300" />
-                  <Star className="text-yellow-300" />
-                  <Star className="text-yellow-300" />
+              )}
+              {loading ? (
+                <Skeleton className="w-45.5 h-45.5 bg-zinc-200 rounded-4xl" />
+              ) : (
+                <div className="w-45.5 flex flex-col bg-orange-400 px-2 py-2 rounded-xl gap-1">
+                  <span className="font-semibold">Adorei, o hambuguer estava delicioso</span>
+                  <span className="text-xs">
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Cumque ut reiciendis
+                  </span>
+                  <div className="flex">
+                    <Star className="text-yellow-300" />
+                    <Star className="text-yellow-300" />
+                    <Star className="text-yellow-300" />
+                    <Star className="text-yellow-300" />
+                  </div>
+                  <div className="flex gap-2 text-xs items-center text-zinc-700">
+                    <img
+                      src="https://github.com/NandoLuisz.png"
+                      alt="Foto de perfil do GitHub"
+                      className="w-8 h-8 rounded-full"
+                    />
+                    <span>Nando S.</span>
+                  </div>
                 </div>
-                <div className="flex gap-2 text-xs items-center text-zinc-700">
-                  <img
-                    src="https://github.com/NandoLuisz.png"
-                    alt="Foto de perfil do GitHub"
-                    className="w-8 h-8 rounded-full"
-                  />
-                  <span>Nando S.</span>
-                </div>
-              </div>
-              <div className="w-45.5 flex flex-col bg-orange-400 px-2 py-2 rounded-xl gap-1">
-                <span className="font-semibold">Adorei, o hambuguer estava delicioso</span>
-                <span className="text-xs">
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Cumque ut reiciendis
-                </span>
-                <div className="flex">
-                  <Star className="text-yellow-300" />
-                  <Star className="text-yellow-300" />
-                  <Star className="text-yellow-300" />
-                  <Star className="text-yellow-300" />
-                </div>
-                <div className="flex gap-2 text-xs items-center text-zinc-700">
-                  <img
-                    src="https://github.com/NandoLuisz.png"
-                    alt="Foto de perfil do GitHub"
-                    className="w-8 h-8 rounded-full"
-                  />
-                  <span>Nando S.</span>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
         <div className="bg-white rounded-2xl p-4 flex-1 flex flex-col gap-2">
-          <span className="font-semibold text-xl">Itens mais vendidos do cardápio - Jan</span>
+          {loading ? (
+            <Skeleton className="h-6 w-80" />
+          ) : (
+            <span className="font-semibold text-xl">Itens mais vendidos do cardápio - Jan</span>
+          )}
+
           <Table>
             <TableHeader>
               <TableRow>
@@ -254,17 +299,41 @@ export default function Dashboard() {
             </TableHeader>
 
             <TableBody>
-              {menuItems.map((item, index) => (
-                <TableRow key={index}>
-                  <TableCell className="font-medium flex items-center gap-2">
-                    <img src={item.image} alt={item.menu} className="size-10 rounded-sm" />
-                    {item.menu}{" "}
-                  </TableCell>
-                  <TableCell>{item.categoria}</TableCell>
-                  <TableCell>R$ {item.preco.toFixed(2)}</TableCell>
-                  <TableCell className="text-right">{item.quantidade}</TableCell>
-                </TableRow>
-              ))}
+              {loading
+                ? Array.from({ length: 4 }).map((_, index) => (
+                    <TableRow key={index}>
+                      <TableCell className="flex items-center gap-2">
+                        <Skeleton className="size-10 rounded-sm" />
+                        <Skeleton className="h-4 w-40" />
+                      </TableCell>
+
+                      <TableCell>
+                        <Skeleton className="h-4 w-24" />
+                      </TableCell>
+
+                      <TableCell>
+                        <Skeleton className="h-4 w-20" />
+                      </TableCell>
+
+                      <TableCell className="text-right">
+                        <Skeleton className="h-4 w-12 ml-auto" />
+                      </TableCell>
+                    </TableRow>
+                  ))
+                : menuItems.map((item, index) => (
+                    <TableRow key={index}>
+                      <TableCell className="font-medium flex items-center gap-2">
+                        <img src={item.image} alt={item.menu} className="size-10 rounded-sm" />
+                        {item.menu}
+                      </TableCell>
+
+                      <TableCell>{item.categoria}</TableCell>
+
+                      <TableCell>R$ {item.preco.toFixed(2)}</TableCell>
+
+                      <TableCell className="text-right">{item.quantidade}</TableCell>
+                    </TableRow>
+                  ))}
             </TableBody>
           </Table>
         </div>

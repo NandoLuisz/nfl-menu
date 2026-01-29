@@ -10,10 +10,36 @@ import data from "@/data.json"
 import { categories, types, type FoodResponse } from "@/model/foodModel"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
 
 const inputBase = "outline-none rounded-3xl px-4 py-2 transition-colors"
 const inputError = "border-2 border-red-500 bg-red-50"
 const inputNormal = "bg-white"
+
+function ProductSkeleton() {
+  return (
+    <>
+      {Array.from({ length: 5 }).map((_, i) => (
+        <div
+          key={i}
+          className="flex items-center gap-4 bg-orange-100/50 px-4 py-3 rounded-xl animate-pulse"
+        >
+          <Skeleton className="w-16 h-16 rounded-lg bg-orange-200" />
+          <div className="flex flex-1 items-center justify-between">
+            <div className="flex flex-col gap-2">
+              <Skeleton className="h-5 w-32 bg-orange-200" />
+              <Skeleton className="h-4 w-48 bg-orange-200" />
+            </div>
+            <div className="flex flex-col items-end gap-2">
+              <Skeleton className="h-4 w-16 bg-orange-200" />
+              <Skeleton className="h-5 w-20 bg-orange-200" />
+            </div>
+          </div>
+        </div>
+      ))}
+    </>
+  )
+}
 
 export default function Register() {
   const {
@@ -45,6 +71,8 @@ export default function Register() {
   const [toastWarningRegister, setToastWarningRegister] = useState(false)
   const [toastDeleteRegister, setToastDeleteRegister] = useState(false)
 
+  const [isLoading, setIsLoading] = useState(true)
+
   const onSubmit: SubmitHandler<FoodFormFields> = async (formData) => {
     console.log(formData)
     setToastSucessfullyRegister(true)
@@ -68,6 +96,11 @@ export default function Register() {
       return () => clearTimeout(timer)
     }
   }, [toastSucessfullyEdit, toastSucessfullyRegister, toastWarningRegister, toastDeleteRegister])
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 1500)
+    return () => clearTimeout(timer)
+  }, [])
 
   function filterPopover(type: string) {
     setProducts(data.filter((item) => item.type === type))
@@ -265,42 +298,46 @@ export default function Register() {
           </div>
         </div>
         <div className="flex flex-col gap-2 max-h-170 overflow-y-auto pr-2">
-          {products
-            .filter(
-              (item) =>
-                item.title.toLowerCase().includes(filter.toLowerCase()) ||
-                item.description.toLowerCase().includes(filter.toLowerCase()) ||
-                item.type.toLowerCase().includes(filter.toLowerCase()),
-            )
-            .map((item) => (
-              <div
-                key={item.id}
-                className="flex items-center gap-4 bg-orange-400 px-4 py-3 rounded-xl"
-                onClick={() => {
-                  setModalDetails(true)
-                  setProductDetails(item)
-                  setTypeValue(item.title)
-                }}
-              >
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  className="w-16 h-16 rounded-lg object-cover"
-                />
+          {isLoading ? (
+            <ProductSkeleton />
+          ) : (
+            products
+              .filter(
+                (item) =>
+                  item.title.toLowerCase().includes(filter.toLowerCase()) ||
+                  item.description.toLowerCase().includes(filter.toLowerCase()) ||
+                  item.type.toLowerCase().includes(filter.toLowerCase()),
+              )
+              .map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-center gap-4 bg-orange-400 px-4 py-3 rounded-xl cursor-pointer hover:bg-orange-500 transition-colors"
+                  onClick={() => {
+                    setModalDetails(true)
+                    setProductDetails(item)
+                    setTypeValue(item.type) // Corrigido de item.title para item.type
+                  }}
+                >
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    className="w-16 h-16 rounded-lg object-cover"
+                  />
 
-                <div className="flex flex-1 items-center justify-between">
-                  <div className="flex flex-col gap-1">
-                    <span className="font-semibold text-lg">{item.title}</span>
-                    <span className="text-sm text-zinc-700">{item.description}</span>
-                  </div>
+                  <div className="flex flex-1 items-center justify-between">
+                    <div className="flex flex-col gap-1">
+                      <span className="font-semibold text-lg">{item.title}</span>
+                      <span className="text-sm text-zinc-700 line-clamp-1">{item.description}</span>
+                    </div>
 
-                  <div className="flex flex-col items-end gap-1">
-                    <span className="text-sm uppercase text-zinc-800">{item.type}</span>
-                    <span className="font-bold text-lg">R$ {item.price.toFixed(2)}</span>
+                    <div className="flex flex-col items-end gap-1">
+                      <span className="text-sm uppercase text-zinc-800">{item.type}</span>
+                      <span className="font-bold text-lg">R$ {item.price.toFixed(2)}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+          )}
         </div>
       </div>
     </main>

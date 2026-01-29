@@ -1,18 +1,6 @@
 import * as React from "react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
 import {
   Table,
   TableBody,
@@ -21,285 +9,183 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+
+import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
-import {
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-  type ColumnDef,
-  type ColumnFiltersState,
-  type SortingState,
-  type VisibilityState,
-} from "@tanstack/react-table"
-
-import { ChevronDown, MoreHorizontal, ArrowUpDown } from "lucide-react"
-
 import { orders, type Order } from "@/model/orderModel"
+import { ChevronLeft, ChevronRight, ListFilter } from "lucide-react"
+import { Skeleton } from "@/components/ui/skeleton"
 
-/* =========================
-   COLUMNS
-========================= */
+const ITEMS_PER_PAGE = 10
 
-// eslint-disable-next-line react-refresh/only-export-components
-export const columns = (onOpenDetails: (order: Order) => void): ColumnDef<Order>[] => [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Selecionar todos"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Selecionar linha"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: "id",
-    header: "Pedido ID",
-    cell: ({ row }) => <div className="font-mono text-xs">{row.getValue("id")}</div>,
-  },
-  {
-    accessorKey: "date",
-    header: ({ column }) => (
-      <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-        Data
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-    cell: ({ row }) => <div>{row.getValue("date")}</div>,
-  },
-  {
-    accessorKey: "address",
-    header: "Endereço",
-    cell: ({ row }) => <div className="max-w-52 truncate">{row.getValue("address")}</div>,
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => {
-      const status = row.getValue("status") as string
-
-      return (
-        <div
-          className={`capitalize font-medium ${
-            status === "cancelado"
-              ? "text-red-500"
-              : status === "entregue"
-                ? "text-green-600"
-                : "text-amber-500"
-          }`}
-        >
-          {status}
-        </div>
-      )
-    },
-  },
-  {
-    accessorKey: "items",
-    header: () => <div className="text-right">Itens</div>,
-    cell: ({ row }) => <div className="text-right font-medium">{row.getValue("items")}</div>,
-  },
-  {
-    accessorKey: "price",
-    header: () => <div className="text-right">Preço</div>,
-    cell: ({ row }) => {
-      const price = Number(row.getValue("price"))
-
-      return (
-        <div className="text-right font-medium">
-          {new Intl.NumberFormat("pt-BR", {
-            style: "currency",
-            currency: "BRL",
-          }).format(price)}
-        </div>
-      )
-    },
-  },
-  {
-    id: "actions",
-    cell: ({ row }) => {
-      const order = row.original
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Ações</DropdownMenuLabel>
-
-            <DropdownMenuGroup>
-              <DropdownMenuItem onClick={() => navigator.clipboard.writeText(order.id)}>
-                Copiar ID
-              </DropdownMenuItem>
-
-              <DropdownMenuItem onClick={() => onOpenDetails(order)}>Ver detalhes</DropdownMenuItem>
-            </DropdownMenuGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )
-    },
-  },
-]
-
-/* =========================
-   COMPONENT
-========================= */
+// 1. Melhoria no Skeleton: Adicionado bg-zinc-200 para garantir visibilidade
+// e alturas que batem com o conteúdo real
+function TableSkeleton() {
+  return (
+    <>
+      {Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
+        <TableRow key={i}>
+          <TableCell className="pl-5">
+            <Skeleton className="h-4 w-16 bg-zinc-200" />
+          </TableCell>
+          <TableCell>
+            <Skeleton className="h-4 w-20 bg-zinc-200" />
+          </TableCell>
+          <TableCell>
+            <Skeleton className="h-4 w-48 bg-zinc-200" />
+          </TableCell>
+          <TableCell>
+            <Skeleton className="h-4 w-24 bg-zinc-200" />
+          </TableCell>
+          <TableCell className="text-right">
+            <div className="flex justify-end">
+              <Skeleton className="h-4 w-20 bg-zinc-200" />
+            </div>
+          </TableCell>
+          <TableCell className="text-center">
+            <div className="flex justify-center">
+              <Skeleton className="h-8 w-24 rounded-md bg-zinc-200" />
+            </div>
+          </TableCell>
+        </TableRow>
+      ))}
+    </>
+  )
+}
 
 export default function Orders() {
-  const [sorting, setSorting] = React.useState<SortingState>([])
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
-  const [rowSelection, setRowSelection] = React.useState({})
+  const [open, setOpen] = useState(false)
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
+  const [filter, setFilter] = useState("")
+  const [currentPage, setCurrentPage] = useState(1)
+  const [isLoading, setIsLoading] = useState(true)
 
-  const [modalDetailsOrderActive, setModalDetailsOrderActive] = useState(false)
-  const [modalDetailsOrder, setModalDetailsOrder] = useState<Order | null>(null)
+  // Reseta para a página 1 ao filtrar
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [filter])
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 1500)
+    return () => clearTimeout(timer) // Limpeza de memória
+  }, [])
+
+  const filteredOrders = orders.filter(
+    (item) =>
+      item.date.toLowerCase().includes(filter.toLowerCase()) ||
+      item.address.toLowerCase().includes(filter.toLowerCase()) ||
+      item.status.toLowerCase().includes(filter.toLowerCase()),
+  )
+
+  const totalPages = Math.ceil(filteredOrders.length / ITEMS_PER_PAGE) || 1
+
+  const paginatedOrders = filteredOrders.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE,
+  )
 
   const handleOpenDetails = (order: Order) => {
-    setModalDetailsOrder(order)
-    setModalDetailsOrderActive(true)
+    setSelectedOrder(order)
+    setOpen(true)
   }
 
-  const table = useReactTable({
-    data: orders,
-    columns: columns(handleOpenDetails),
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
-    state: {
-      sorting,
-      columnFilters,
-      columnVisibility,
-      rowSelection,
-    },
-  })
-
   return (
-    <div className="w-full">
-      {/* ===== Dialog ===== */}
-      <Dialog open={modalDetailsOrderActive} onOpenChange={setModalDetailsOrderActive}>
+    <div className="w-full space-y-4">
+      {/* ... Dialog permanece igual ... */}
+      <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Detalhes do pedido</DialogTitle>
           </DialogHeader>
-
-          {modalDetailsOrder && (
-            <div className="space-y-3 text-sm">
+          {selectedOrder && (
+            <div className="space-y-2 text-sm">
               <p>
-                <strong>ID:</strong> {modalDetailsOrder.id}
+                <strong>ID:</strong> {selectedOrder.id}
               </p>
               <p>
-                <strong>Data:</strong> {modalDetailsOrder.date}
+                <strong>Data:</strong> {selectedOrder.date}
               </p>
               <p>
-                <strong>Endereço:</strong> {modalDetailsOrder.address}
+                <strong>Endereço:</strong> {selectedOrder.address}
               </p>
               <p>
-                <strong>Status:</strong> {modalDetailsOrder.status}
+                <strong>Status:</strong> {selectedOrder.status}
               </p>
               <p>
-                <strong>Itens:</strong> {modalDetailsOrder.items}
+                <strong>Itens:</strong> {selectedOrder.items}
               </p>
               <p>
                 <strong>Preço:</strong>{" "}
-                {new Intl.NumberFormat("pt-BR", {
-                  style: "currency",
-                  currency: "BRL",
-                }).format(Number(modalDetailsOrder.price))}
+                {new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(
+                  Number(selectedOrder.price),
+                )}
               </p>
             </div>
           )}
         </DialogContent>
       </Dialog>
 
-      {/* ===== Filters ===== */}
-      <div className="flex items-center py-4 gap-4">
-        <Input
-          placeholder="Filtrar por endereço..."
-          value={(table.getColumn("address")?.getFilterValue() as string) ?? ""}
-          onChange={(event) => table.getColumn("address")?.setFilterValue(event.target.value)}
-          className="max-w-sm"
+      {/* Input de filtro */}
+      <div className="w-full max-w-sm flex items-center border rounded-xl bg-zinc-100 gap-2 text-zinc-600 px-3 py-2">
+        <ListFilter className="size-4" />
+        <input
+          placeholder="Filtrar pedidos..."
+          className="outline-none bg-transparent w-full text-sm"
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
         />
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              Colunas <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => (
-                <DropdownMenuCheckboxItem
-                  key={column.id}
-                  className="capitalize"
-                  checked={column.getIsVisible()}
-                  onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                >
-                  {column.id}
-                </DropdownMenuCheckboxItem>
-              ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
       </div>
 
-      {/* ===== Table ===== */}
-      <div className="rounded-md border">
+      <div className="rounded-xl border bg-white overflow-hidden">
         <Table>
           <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(header.column.columnDef.header, header.getContext())}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
+            <TableRow className="bg-zinc-50/50">
+              <TableHead className="pl-5 w-[100px]">ID</TableHead>
+              <TableHead className="w-[120px]">Data</TableHead>
+              <TableHead>Endereço</TableHead>
+              <TableHead className="w-[120px]">Status</TableHead>
+              <TableHead className="text-right w-[120px]">Preço</TableHead>
+              <TableHead className="text-center w-[150px]">Ações</TableHead>
+            </TableRow>
           </TableHeader>
 
           <TableBody>
-            {table.getRowModel().rows.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  ))}
+            {isLoading ? (
+              <TableSkeleton />
+            ) : paginatedOrders.length > 0 ? (
+              paginatedOrders.map((order) => (
+                <TableRow key={order.id}>
+                  <TableCell className="font-mono text-xs pl-5">{order.id}</TableCell>
+                  <TableCell className="text-sm">{order.date}</TableCell>
+                  <TableCell className="max-w-56 truncate text-sm">{order.address}</TableCell>
+                  <TableCell
+                    className={`capitalize text-sm font-medium ${
+                      order.status === "cancelado"
+                        ? "text-red-500"
+                        : order.status === "entregue"
+                          ? "text-green-600"
+                          : "text-amber-500"
+                    }`}
+                  >
+                    {order.status}
+                  </TableCell>
+                  <TableCell className="text-right font-medium text-sm">
+                    {new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(
+                      Number(order.price),
+                    )}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <Button size="sm" variant="outline" onClick={() => handleOpenDetails(order)}>
+                      Ver detalhes
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns(handleOpenDetails).length} className="h-24 text-center">
-                  Sem resultados.
+                <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                  Nenhum pedido encontrado.
                 </TableCell>
               </TableRow>
             )}
@@ -307,30 +193,33 @@ export default function Orders() {
         </Table>
       </div>
 
-      {/* ===== Pagination ===== */}
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} de{" "}
-          {table.getFilteredRowModel().rows.length} linha(s) selecionadas.
+      {/* Paginação */}
+      <div className="flex items-center justify-between pt-2">
+        <span className="text-sm text-zinc-500">
+          Página <strong>{currentPage}</strong> de {totalPages}
+        </span>
+
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-8"
+            disabled={currentPage === 1 || isLoading}
+            onClick={() => setCurrentPage((prev) => prev - 1)}
+          >
+            <ChevronLeft className="size-4" />
+          </Button>
+
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-8"
+            disabled={currentPage === totalPages || isLoading}
+            onClick={() => setCurrentPage((prev) => prev + 1)}
+          >
+            <ChevronRight className="size-4" />
+          </Button>
         </div>
-
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          Anterior
-        </Button>
-
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          Próximo
-        </Button>
       </div>
     </div>
   )
