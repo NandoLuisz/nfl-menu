@@ -77,7 +77,7 @@ export default function SignUp() {
                     placeholder="Digite seu nome"
                     autoComplete="name"
                   />
-                  {fieldState.error && <FieldError errors={[fieldState.error.message]} />}
+                  {fieldState.error && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
             />
@@ -96,7 +96,7 @@ export default function SignUp() {
                     placeholder="exemplo@email.com"
                     autoComplete="email"
                   />
-                  {fieldState.error && <FieldError errors={[fieldState.error.message]} />}
+                  {fieldState.error && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
             />
@@ -115,7 +115,7 @@ export default function SignUp() {
                     placeholder="******"
                     autoComplete="new-password"
                   />
-                  {fieldState.error && <FieldError errors={[fieldState.error.message]} />}
+                  {fieldState.error && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
             />
