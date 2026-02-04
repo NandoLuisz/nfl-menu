@@ -5,6 +5,9 @@ import { createBrowserRouter } from "react-router"
 import Register from "@/pages/Register"
 import Stock from "@/pages/Stock"
 import Profile from "@/pages/profile/Profile"
+import LayoutSign from "@/pages/auth/LayoutSign"
+import SignIn from "@/pages/auth/SignIn"
+import SignUp from "@/pages/auth/SignUp"
 
 export const router = createBrowserRouter([
   {
@@ -17,4 +20,11 @@ export const router = createBrowserRouter([
       { path: "/profile", element: <Profile /> },
     ],
   },
+  {
+    element: <LayoutSign />,
+    children: [
+      { path: "/sign-in", element: <SignIn /> },
+      { path: "/sign-up", element: <SignUp /> },
+    ]
+  }
 ])
