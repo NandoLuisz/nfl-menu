@@ -15,13 +15,10 @@ export const foodFormSchema = z.object({
 
   image: z.string().url("Informe uma URL válida para a imagem"),
 
-  price: z.preprocess(
-    (val) => (val === "" || val === undefined ? undefined : Number(val)),
-    z
-      .number({ invalid_type_error: "O preço deve ser um número" })
-      .min(0.01, "O preço deve ser de pelo menos 0,01")
-      .max(10000, "O preço não pode exceder 10.000"),
-  ),
+  price: z
+  .number({ invalid_type_error: "O preço deve ser um número" })
+  .min(0.01, "O preço deve ser de pelo menos 0,01")
+  .max(10000, "O preço não pode exceder 10.000"),
 
   type: z.enum([
     "pizza",
@@ -35,3 +32,5 @@ export const foodFormSchema = z.object({
     "Vitaminas",
   ]),
 })
+
+export type FoodFormFields = z.infer<typeof foodFormSchema>

@@ -7,7 +7,6 @@ import {
   TrendingDown,
   WalletCards,
   CircleX,
-  Star,
   MessageSquareQuote,
 } from "lucide-react"
 
@@ -37,8 +36,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+
+import { Calendar as CalenderUI } from "@/components/ui/calendar"
+
+import { format } from "date-fns"
+import { ptBR } from "date-fns/locale"
 import { useEffect, useState } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
+import Review from "./components/Review"
 
 export const description = "A line chart"
 
@@ -87,18 +92,47 @@ const menuItems = [
 
 export default function Dashboard() {
   const [loading, setLoading] = useState(true)
+  const [showCalender, setShowCalender] = useState<boolean>(false)
+  const [date, setDate] = useState<Date | undefined>(new Date())
+  const [dateToFilter, setDatetofilter] = useState<string>(
+    format(new Date(), "dd 'de' MMM, yyyy", { locale: ptBR })
+  )
 
   useEffect(() => {
     setTimeout(() => setLoading(false), 1500)
   }, [])
 
+  useEffect(() => {
+  if (date) {
+    const formattedDate = format(date, "dd 'de' MMM, yyyy", { locale: ptBR })
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setDatetofilter(formattedDate)
+    
+    setShowCalender(false)
+  }
+}, [date])
+
   return (
-    <div className="w-full h-full">
+    <div className="w-full h-full relative">
+      {showCalender && (
+        <CalenderUI
+          mode="single"
+          defaultMonth={date}
+          selected={date}
+          onSelect={setDate}
+          className="absolute rounded-lg border shadow-sm top-12"
+        />
+      )}
       <div className="w-48 gap-3 rounded-xl bg-white px-3 py-3 flex items-center">
         <Calendar className="size-5 text-orange-400" />
-        <span className="text-sm font-semibold text-amber-950">Últimos 30 dias</span>
-        <ChevronDown className="size-4" />
-      </div>
+        <span className="text-sm font-semibold text-amber-950">
+          {dateToFilter}
+        </span>
+        <ChevronDown 
+          className="size-4 cursor-pointer" 
+          onClick={() => setShowCalender(!showCalender)}
+        />
+      </div>  
       <div className="py-4 flex gap-4">
         {!loading ? (
           <div className="w-68 bg-white px-5 py-5 rounded-4xl">
@@ -207,76 +241,17 @@ export default function Dashboard() {
               {loading ? (
                 <Skeleton className="w-45.5 h-45.5 bg-zinc-200 rounded-4xl" />
               ) : (
-                <div className="w-45.5 flex flex-col bg-orange-400 px-2 py-2 rounded-xl gap-1">
-                  <span className="font-semibold">Adorei, o hambuguer estava delicioso</span>
-                  <span className="text-xs">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Cumque ut reiciendis
-                  </span>
-                  <div className="flex">
-                    <Star className="text-yellow-300" />
-                    <Star className="text-yellow-300" />
-                    <Star className="text-yellow-300" />
-                    <Star className="text-yellow-300" />
-                    <Star className="text-yellow-300" />
-                  </div>
-                  <div className="flex gap-2 text-xs items-center text-zinc-700">
-                    <img
-                      src="https://github.com/NandoLuisz.png"
-                      alt="Foto de perfil do GitHub"
-                      className="w-8 h-8 rounded-full"
-                    />
-                    <span>Nando S.</span>
-                  </div>
-                </div>
+                <Review quantity={5}/>
               )}
               {loading ? (
                 <Skeleton className="w-45.5 h-45.5 bg-zinc-200 rounded-4xl" />
               ) : (
-                <div className="w-45.5 flex flex-col bg-orange-400 px-2 py-2 rounded-xl gap-1">
-                  <span className="font-semibold">Adorei, o hambuguer estava delicioso</span>
-                  <span className="text-xs">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Cumque ut reiciendis
-                  </span>
-                  <div className="flex">
-                    <Star className="text-yellow-300" />
-                    <Star className="text-yellow-300" />
-                    <Star className="text-yellow-300" />
-                    <Star className="text-yellow-300" />
-                    <Star className="text-yellow-300" />
-                  </div>
-                  <div className="flex gap-2 text-xs items-center text-zinc-700">
-                    <img
-                      src="https://github.com/NandoLuisz.png"
-                      alt="Foto de perfil do GitHub"
-                      className="w-8 h-8 rounded-full"
-                    />
-                    <span>Nando S.</span>
-                  </div>
-                </div>
+                <Review quantity={5}/>
               )}
               {loading ? (
                 <Skeleton className="w-45.5 h-45.5 bg-zinc-200 rounded-4xl" />
               ) : (
-                <div className="w-45.5 flex flex-col bg-orange-400 px-2 py-2 rounded-xl gap-1">
-                  <span className="font-semibold">Adorei, o hambuguer estava delicioso</span>
-                  <span className="text-xs">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Cumque ut reiciendis
-                  </span>
-                  <div className="flex">
-                    <Star className="text-yellow-300" />
-                    <Star className="text-yellow-300" />
-                    <Star className="text-yellow-300" />
-                    <Star className="text-yellow-300" />
-                  </div>
-                  <div className="flex gap-2 text-xs items-center text-zinc-700">
-                    <img
-                      src="https://github.com/NandoLuisz.png"
-                      alt="Foto de perfil do GitHub"
-                      className="w-8 h-8 rounded-full"
-                    />
-                    <span>Nando S.</span>
-                  </div>
-                </div>
+                <Review quantity={3}/>
               )}
             </div>
           </div>

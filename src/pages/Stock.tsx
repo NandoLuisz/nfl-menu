@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Skeleton } from "@/components/ui/skeleton"
 import { categoriesStock } from "@/model/categoriesStock"
-import { stockSchema, type StockFormData } from "@/model/schemaStock"
+import { stockSchema, type StockFormData } from "@/model/schema/schemaStock"
 
 import { statusStyles, stockItems, type Stock } from "@/model/stockModel"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -48,9 +48,13 @@ export default function Stock() {
   function onSubmit(data: StockFormData) {
     if (!stockProductDetails) return
 
-    setStockProducts((prev) =>
-      prev.map((item) => (item.id === stockProductDetails.id ? { ...item, ...data } : item)),
+   setStockProducts((prev) =>
+    prev.map((item) =>
+      item.id === stockProductDetails.id
+        ? ({ ...item, ...data } as Stock) 
+        : item
     )
+  )
 
     setModalDetailsStockProduct(false)
   }
@@ -145,7 +149,6 @@ export default function Stock() {
                   {stockProductDetails?.unit}
                 </Button>
               </PopoverTrigger>
-
               <PopoverContent className="w-50 p-2">
                 {units.map((unit) => (
                   <div
@@ -163,18 +166,14 @@ export default function Stock() {
                 ))}
               </PopoverContent>
             </Popover>
-
             {errors.unit && <span className="text-red-500 text-xs">{errors.unit.message}</span>}
-
             <label className="text-[10px]">Status</label>
-
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="outline" className="w-50 justify-between">
                   {stockProductDetails?.status || "Selecione uma opção"}
                 </Button>
               </PopoverTrigger>
-
               <PopoverContent className="w-50 p-2">
                 <ul className="flex flex-col gap-1">
                   {statuses.map((status) => (
@@ -194,16 +193,13 @@ export default function Stock() {
                 </ul>
               </PopoverContent>
             </Popover>
-
             <label className="text-[10px]">Tipo</label>
-
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="outline" className="w-50 justify-between">
                   {stockProductDetails?.type || "Selecione uma opção"}
                 </Button>
               </PopoverTrigger>
-
               <PopoverContent className="w-50 p-2">
                 <ul className="flex flex-col gap-1">
                   {categoriesStock.map((option) => (
@@ -212,7 +208,7 @@ export default function Stock() {
                       onClick={() => {
                         setValue("type", option.value, { shouldValidate: true })
                         setStockProductDetails((prev) =>
-                          prev ? { ...prev, type: option.value } : prev,
+                          prev ? ({ ...prev, type: option.value } as Stock) : prev,
                         )
                       }}
                       className="cursor-pointer px-2 py-1 hover:bg-zinc-100"
@@ -229,9 +225,7 @@ export default function Stock() {
           Salvar alterações
         </Button>
       </form>
-
       <span className="text-lg font-semibold">Categorias</span>
-
       <div className="w-full grid grid-cols-6 gap-4 mt-4">
         {categoriesStock.map((category) => (
           <div
@@ -251,7 +245,6 @@ export default function Stock() {
           </div>
         ))}
       </div>
-
       <div className="w-[30%] flex items-center justify-between border rounded-3xl bg-zinc-200 gap-2 text-zinc-800 px-3 py-2 mt-6">
         <ListFilter />
         <input
@@ -261,7 +254,6 @@ export default function Stock() {
           onChange={(e) => setFilterText(e.target.value)}
         />
       </div>
-
       <div className="mt-4">
         <div className="w-full overflow-x-auto">
           <table className="w-full border-collapse rounded-lg overflow-hidden">
@@ -278,7 +270,6 @@ export default function Stock() {
                 <th className="px-4 py-3 text-center">Status</th>
               </tr>
             </thead>
-
             <tbody>
               {isLoading ? (
                 <StockTableSkeleton />
@@ -290,7 +281,7 @@ export default function Stock() {
                     onClick={() => {
                       setModalDetailsStockProduct(true)
                       setStockProductDetails(item)
-                      reset({ ...item }) // Simplificado o reset
+                      reset(item as unknown as StockFormData)
                     }}
                   >
                     <td className="px-4 py-3 font-medium text-zinc-800">{item.name}</td>
@@ -321,7 +312,6 @@ export default function Stock() {
         <span className="text-sm text-muted-foreground">
           Página {currentPage} de {totalPages || 1}
         </span>
-
         <div className="flex gap-2">
           <Button
             variant="outline"
@@ -331,7 +321,6 @@ export default function Stock() {
           >
             <ChevronLeft />
           </Button>
-
           <Button
             variant="outline"
             size="sm"

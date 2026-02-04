@@ -3,7 +3,6 @@ import { useForm } from "react-hook-form"
 import type { SubmitHandler } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Toast } from "./ui/Toast"
-import { foodFormSchema, type FoodFormFields } from "@/model/schemaFood"
 import { ListFilter, X } from "lucide-react"
 
 import data from "@/data.json"
@@ -11,6 +10,7 @@ import { categories, types, type FoodResponse } from "@/model/foodModel"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
+import { foodFormSchema, type FoodFormFields } from "@/model/schema/schemaFood"
 
 const inputBase = "outline-none rounded-3xl px-4 py-2 transition-colors"
 const inputError = "border-2 border-red-500 bg-red-50"
@@ -63,7 +63,6 @@ export default function Register() {
 
   const [modalDetails, setModalDetails] = useState<boolean>(false)
   const [productDetails, setProductDetails] = useState<FoodResponse | null>()
-  const [typeValue, setTypeValue] = useState<string>("")
   const [filterTypeValue, setFilterTypeValue] = useState<string>("")
 
   const [toastSucessfullyEdit, setToastSucessfullyEdit] = useState(false)
@@ -157,7 +156,6 @@ export default function Register() {
                     {types.map((option) => (
                       <li
                         key={option}
-                        onClick={() => setTypeValue(option)}
                         className="cursor-pointer rounded px-2 py-1 hover:bg-zinc-100"
                       >
                         {option}
@@ -315,7 +313,6 @@ export default function Register() {
                   onClick={() => {
                     setModalDetails(true)
                     setProductDetails(item)
-                    setTypeValue(item.type) // Corrigido de item.title para item.type
                   }}
                 >
                   <img
@@ -323,13 +320,11 @@ export default function Register() {
                     alt={item.title}
                     className="w-16 h-16 rounded-lg object-cover"
                   />
-
                   <div className="flex flex-1 items-center justify-between">
                     <div className="flex flex-col gap-1">
                       <span className="font-semibold text-lg">{item.title}</span>
                       <span className="text-sm text-zinc-700 line-clamp-1">{item.description}</span>
                     </div>
-
                     <div className="flex flex-col items-end gap-1">
                       <span className="text-sm uppercase text-zinc-800">{item.type}</span>
                       <span className="font-bold text-lg">R$ {item.price.toFixed(2)}</span>

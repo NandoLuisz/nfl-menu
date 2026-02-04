@@ -1,4 +1,3 @@
-import * as React from "react"
 import { useEffect, useState } from "react"
 
 import {
@@ -19,8 +18,6 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 const ITEMS_PER_PAGE = 10
 
-// 1. Melhoria no Skeleton: Adicionado bg-zinc-200 para garantir visibilidade
-// e alturas que batem com o conteúdo real
 function TableSkeleton() {
   return (
     <>
@@ -61,14 +58,14 @@ export default function Orders() {
   const [currentPage, setCurrentPage] = useState(1)
   const [isLoading, setIsLoading] = useState(true)
 
-  // Reseta para a página 1 ao filtrar
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCurrentPage(1)
   }, [filter])
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 1500)
-    return () => clearTimeout(timer) // Limpeza de memória
+    return () => clearTimeout(timer) 
   }, [])
 
   const filteredOrders = orders.filter(
@@ -92,7 +89,6 @@ export default function Orders() {
 
   return (
     <div className="w-full space-y-4">
-      {/* ... Dialog permanece igual ... */}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -125,8 +121,6 @@ export default function Orders() {
           )}
         </DialogContent>
       </Dialog>
-
-      {/* Input de filtro */}
       <div className="w-full max-w-sm flex items-center border rounded-xl bg-zinc-100 gap-2 text-zinc-600 px-3 py-2">
         <ListFilter className="size-4" />
         <input
@@ -141,12 +135,12 @@ export default function Orders() {
         <Table>
           <TableHeader>
             <TableRow className="bg-zinc-50/50">
-              <TableHead className="pl-5 w-[100px]">ID</TableHead>
-              <TableHead className="w-[120px]">Data</TableHead>
+              <TableHead className="pl-5 w-25">ID</TableHead>
+              <TableHead className="w-30">Data</TableHead>
               <TableHead>Endereço</TableHead>
-              <TableHead className="w-[120px]">Status</TableHead>
-              <TableHead className="text-right w-[120px]">Preço</TableHead>
-              <TableHead className="text-center w-[150px]">Ações</TableHead>
+              <TableHead className="w-30">Status</TableHead>
+              <TableHead className="text-right w-30">Preço</TableHead>
+              <TableHead className="text-center w-37.5">Ações</TableHead>
             </TableRow>
           </TableHeader>
 
@@ -192,8 +186,6 @@ export default function Orders() {
           </TableBody>
         </Table>
       </div>
-
-      {/* Paginação */}
       <div className="flex items-center justify-between pt-2">
         <span className="text-sm text-zinc-500">
           Página <strong>{currentPage}</strong> de {totalPages}
